@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: gamestore_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    image: ${DOCKER_IMAGE:-gamestore-web}:${IMAGE_TAG:-latest}
+    container_name: gamestore_web
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn gamestore.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120"
+    volumes:
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "False"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: db
+      DB_PORT: 5432
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  media_data:
