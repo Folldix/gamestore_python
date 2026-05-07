@@ -208,3 +208,4 @@ scp .env user@server:/opt/gamestore/
 # Перший запуск
 docker compose -f docker-compose.prod.yml up -d
 ```
+# check
