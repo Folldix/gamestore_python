@@ -62,6 +62,12 @@ class AuthTests(APITestCase):
         response = self.client.post(url, {'email': 'u2@test.com', 'password': 'wrong'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_login_without_trailing_slash(self):
+        User.objects.create_user(username='u3', email='u3@test.com', password='Pass1234!')
+        response = self.client.post('/api/auth/login', {'email': 'u3@test.com', 'password': 'Pass1234!'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', response.data)
+
 
 class GameTests(APITestCase):
     def setUp(self):

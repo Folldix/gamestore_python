@@ -4,9 +4,11 @@ from . import views
 
 urlpatterns = [
     # Auth
+    path('auth/login', views.LoginView.as_view()),
     path('auth/register/', views.RegisterView.as_view(), name='register'),
     path('auth/login/', views.LoginView.as_view(), name='login'),
     path('auth/logout/', views.LogoutView.as_view(), name='logout'),
+    path('auth/refresh', TokenRefreshView.as_view()),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/profile/', views.ProfileView.as_view(), name='profile'),
     path('auth/me/', views.MeView.as_view(), name='me'),

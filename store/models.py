@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
 
 
 class User(AbstractUser):
@@ -76,7 +77,8 @@ class Game(models.Model):
     @property
     def discounted_price(self):
         if self.discount_percent > 0:
-            return self.price * (1 - self.discount_percent / 100)
+            discount_multiplier = Decimal('1') - (Decimal(self.discount_percent) / Decimal('100'))
+            return self.price * discount_multiplier
         return self.price
 
     @property
