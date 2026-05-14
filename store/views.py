@@ -249,7 +249,8 @@ class ReviewCreateByGameIdView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ReviewSerializer(data=request.data, context={'request': request})
+        review_fields = {k: request.data[k] for k in ('rating', 'comment') if k in request.data}
+        serializer = ReviewSerializer(data=review_fields, context={'request': request})
         serializer.is_valid(raise_exception=True)
         game = get_object_or_404(Game, pk=request.data.get('gameId'))
         if Review.objects.filter(user=request.user, game=game).exists():
@@ -545,3 +546,9 @@ class PromotionUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Promotion.objects.prefetch_related('games')
     serializer_class = PromotionSerializer
     permission_classes = [IsAdminUser]
+
+    def perform_destroy(self, instance):
+        game_ids = list(instance.games.values_list('pk', flat=True))
+        super().perform_destroy(instance)
+        if game_ids:
+            Game.objects.filter(pk__in=game_ids).update(discount_percent=0)

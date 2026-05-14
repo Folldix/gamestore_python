@@ -23,9 +23,10 @@ urlpatterns = [
     # Games
     path('genres/', views.GenreListView.as_view(), name='genre-list'),
     path('games/', views.GameListView.as_view(), name='game-list'),
+    # Важливо: int-маршрут має бути вище slug, інакше "2" обробляється як slug.
+    path('games/<int:pk>/', views.GameDetailByIdView.as_view(), name='game-detail-by-id'),
     path('games/<slug:slug>/', views.GameDetailView.as_view(), name='game-detail'),
     path('games/<slug:slug>/reviews/', views.ReviewCreateView.as_view(), name='review-create'),
-    path('games/<int:pk>/', views.GameDetailByIdView.as_view(), name='game-detail-by-id'),
     path('games/admin/create/', views.GameAdminCreateView.as_view(), name='game-admin-create'),
     path('games/admin/<int:pk>/', views.GameAdminUpdateView.as_view(), name='game-admin-update'),
     path('games/admin/<int:pk>/delete/', views.GameAdminDeleteView.as_view(), name='game-admin-delete'),

@@ -234,3 +234,36 @@ class PromotionSerializer(serializers.ModelSerializer):
         if start_at and end_at and start_at >= end_at:
             raise serializers.ValidationError({'endAt': 'End date must be after start date'})
         return attrs
+
+    @staticmethod
+    def _sync_game_discounts(promotion: Promotion):
+        """Ті самі відсотки, що в промо, записуємо в Game.discount_percent — так їх бачить вітрина."""
+        ids = list(promotion.games.values_list('pk', flat=True))
+        if not ids:
+            return
+        if promotion.is_active:
+            Game.objects.filter(pk__in=ids).update(discount_percent=promotion.discount_percent)
+        else:
+            Game.objects.filter(pk__in=ids).update(discount_percent=0)
+
+    def create(self, validated_data):
+        games = validated_data.pop('games', None) or []
+        promotion = Promotion.objects.create(**validated_data)
+        promotion.games.set(games)
+        self._sync_game_discounts(promotion)
+        return promotion
+
+    def update(self, instance, validated_data):
+        games = validated_data.pop('games', serializers.empty)
+        old_ids = set(instance.games.values_list('pk', flat=True))
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        if games is not serializers.empty:
+            new_ids = {g.pk for g in games}
+            removed = old_ids - new_ids
+            if removed:
+                Game.objects.filter(pk__in=removed).update(discount_percent=0)
+            instance.games.set(games)
+        self._sync_game_discounts(instance)
+        return instance

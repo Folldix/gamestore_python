@@ -89,7 +89,8 @@ class Command(BaseCommand):
             User.objects.create_superuser(
                 username='admin',
                 email='admin@gamestore.ua',
-                password='Admin1234!'
+                password='Admin1234!',
+                user_type='ADMIN',
             )
             self.stdout.write(self.style.SUCCESS('Created admin: admin@gamestore.ua / Admin1234!'))
 
