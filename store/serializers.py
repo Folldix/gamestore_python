@@ -114,9 +114,9 @@ class GameListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = (
-            'id', 'title', 'slug', 'developer', 'price',
-            'discount_percent', 'discounted_price', 'cover_image',
-            'genres', 'avg_rating', 'release_date',
+            'id', 'title', 'slug', 'developer', 'publisher', 'price',
+            'discount_percent', 'discounted_price', 'cover_image', 'external_cover_url',
+            'genres', 'avg_rating', 'release_date', 'download_size', 'age_rating', 'video_trailer',
         )
 
 
@@ -126,16 +126,43 @@ class GameDetailSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True, read_only=True)
     discounted_price = serializers.ReadOnlyField()
     avg_rating = serializers.ReadOnlyField()
+    genre = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Game
         fields = (
             'id', 'title', 'slug', 'description', 'developer', 'publisher',
             'release_date', 'price', 'discount_percent', 'discounted_price',
-            'cover_image', 'genres', 'screenshots', 'reviews', 'avg_rating',
+            'cover_image', 'external_cover_url', 'genres', 'genre', 'screenshots', 'reviews', 'avg_rating',
             'min_os', 'min_cpu', 'min_ram', 'min_gpu', 'min_storage',
             'rec_os', 'rec_cpu', 'rec_ram', 'rec_gpu', 'rec_storage',
+            'download_size', 'age_rating', 'video_trailer',
         )
+
+    @staticmethod
+    def _apply_genre_string(game: Game, genre_value: str) -> None:
+        from django.utils.text import slugify
+
+        s = (genre_value or '').strip()
+        if not s:
+            game.genres.clear()
+            return
+        slug = slugify(s) or 'genre'
+        genre_obj, _ = Genre.objects.get_or_create(slug=slug, defaults={'name': s})
+        game.genres.set([genre_obj])
+
+    def create(self, validated_data):
+        genre_val = validated_data.pop('genre', '')
+        game = super().create(validated_data)
+        self._apply_genre_string(game, genre_val)
+        return game
+
+    def update(self, instance, validated_data):
+        genre_val = validated_data.pop('genre', serializers.empty)
+        game = super().update(instance, validated_data)
+        if genre_val is not serializers.empty:
+            self._apply_genre_string(game, genre_val)
+        return game
 
 
 # ── Cart ─────────────────────────────────────────────────────────────────────

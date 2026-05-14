@@ -48,7 +48,11 @@ class Game(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_percent = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])
     cover_image = models.ImageField(upload_to='games/covers/', null=True, blank=True)
+    external_cover_url = models.URLField(max_length=512, blank=True, default='')
     genres = models.ManyToManyField(Genre, related_name='games', blank=True)
+    download_size = models.PositiveBigIntegerField(default=0, blank=True)
+    age_rating = models.CharField(max_length=64, blank=True, default='')
+    video_trailer = models.URLField(max_length=512, blank=True, default='')
 
     # System requirements
     min_os = models.CharField(max_length=255, blank=True)
