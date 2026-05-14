@@ -1,5 +1,7 @@
 import os
+import sys
 from pathlib import Path
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -7,7 +9,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-me-in-producti
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -16,9 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+
     'store',
 ]
 
@@ -26,6 +33,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,6 +62,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gamestore.wsgi.application'
 
+# =========================
+# DATABASES (FIX HERE)
+# =========================
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -64,6 +75,13 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
+# 🔥 ВАЖЛИВО: SQLite для тестів (вирішує твою помилку)
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
 
 AUTH_USER_MODEL = 'store.User'
 
@@ -102,7 +120,6 @@ REST_FRAMEWORK = {
 }
 
 # JWT
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -113,4 +130,5 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:3000,http://127.0.0.1:3000',
 ).split(',')
+
 CORS_ALLOW_CREDENTIALS = True

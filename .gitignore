@@ -1,6 +1,8 @@
 *.pyc
 __pycache__/
 *.pyo
+.vs/
+*.vsidx
 *.pyd
 .Python
 *.egg-info/
