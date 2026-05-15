@@ -62,9 +62,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gamestore.wsgi.application'
 
-# =========================
-# DATABASES (FIX HERE)
-# =========================
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -76,7 +74,7 @@ DATABASES = {
     }
 }
 
-# 🔥 ВАЖЛИВО: SQLite для тестів (вирішує твою помилку)
+
 if 'test' in sys.argv:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',

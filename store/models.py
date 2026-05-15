@@ -3,7 +3,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 
-
+ # Клас користувача
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
@@ -37,7 +37,7 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
-
+    #Клас гри
 class Game(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)

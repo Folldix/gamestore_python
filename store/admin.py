@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Genre, Game, GameScreenshot, Review, Cart, CartItem, Wishlist, Order, Library, LibraryGame
 
-
+#Адмінка
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+     # Колонки, які відображаються у списку користувачів
     list_display = ('email', 'username', 'is_staff', 'date_joined')
     search_fields = ('email', 'username')
     ordering = ('-date_joined',)
@@ -15,6 +16,7 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
+     # Автоматичне формування slug із назви жанру
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'slug')
 

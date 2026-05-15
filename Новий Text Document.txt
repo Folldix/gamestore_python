@@ -1,4 +1,5 @@
 cp .env.example .env
+docker compose build
 docker compose up --build
 py manage.py test store --verbosity=2
 docker compose exec web python manage.py test store
